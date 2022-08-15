@@ -30,3 +30,10 @@ module "vpc" {
 
   cidr_block = var.main_vpc_cidr_block
 }
+
+module "load_balancer" {
+  source = "./modules/load_balancer"
+
+  vpc_id = module.vpc.vpc_id
+  subnets = module.vpc.subnets
+}
