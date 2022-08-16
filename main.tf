@@ -37,3 +37,7 @@ module "load_balancer" {
   vpc_id = module.vpc.vpc_id
   subnets = module.vpc.subnets
 }
+
+module "ecs" {
+  source = "./modules/ecs"
+}
