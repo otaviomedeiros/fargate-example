@@ -41,6 +41,8 @@ module "load_balancer" {
 module "ecs" {
   source = "./modules/ecs"
 
+  region                            = var.region
+  service_name                      = "app"
   public_load_balancer              = module.load_balancer.public_load_balancer
   public_load_balancer_target_group = module.load_balancer.public_load_balancer_target_group
 }

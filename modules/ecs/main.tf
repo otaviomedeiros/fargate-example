@@ -1,3 +1,10 @@
+variable "region" {
+  type = string
+}
+
+variable "service_name" {
+  type = string
+}
 variable "public_load_balancer" {
   
 }
@@ -60,6 +67,7 @@ resource "aws_ecs_task_definition" "app-task-definition" {
   ]
 
   execution_role_arn = aws_iam_role.app-task-definition-role.arn
+  task_role_arn = aws_iam_role.app-task-definition-role.arn
 
   network_mode       = "awsvpc"
   cpu                = 256
@@ -77,8 +85,21 @@ resource "aws_ecs_task_definition" "app-task-definition" {
           hostPort      = 80
         }
       ]
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          "awslogs-region" = var.region,
+          "awslogs-group" = "/ecs/${var.service_name}",
+          "awslogs-stream-prefix" = "ecs"
+        }
+      }
     }
   ])
+}
+
+resource "aws_cloudwatch_log_group" "service_log_group" {
+  name = "/ecs/${var.service_name}"
+  retention_in_days = 30
 }
 
 resource "aws_security_group" "app_service_security_group" {
@@ -106,7 +127,7 @@ resource "aws_security_group" "app_service_security_group" {
 }
 
 resource "aws_ecs_service" "app-service" {
-  name            = "app"
+  name            = var.service_name
   cluster         = aws_ecs_cluster.ecs-cluster.id
   task_definition = aws_ecs_task_definition.app-task-definition.arn
   desired_count   = 1
@@ -133,5 +154,9 @@ resource "aws_ecs_service" "app-service" {
     base              = 0
     capacity_provider = "FARGATE"
     weight            = 100
+  }
+
+  lifecycle {
+    ignore_changes = [desired_count, task_definition]
   }
 }
