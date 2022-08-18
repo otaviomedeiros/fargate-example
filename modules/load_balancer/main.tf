@@ -68,3 +68,11 @@ resource "aws_lb_listener" "front_end" {
     target_group_arn = aws_lb_target_group.public_alb_target_group.arn
   }
 }
+
+output "public_load_balancer" {
+  value = aws_lb.public_alb
+}
+
+output "public_load_balancer_target_group" {
+  value = aws_lb_target_group.public_alb_target_group
+}
